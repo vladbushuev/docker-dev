@@ -9,7 +9,7 @@
 * mailhog
 * elasticsearch 7 или 8
 
-## Installation
+## Установка
 
 ```bash
 $ git clone https://github.com/vladbushuev/docker-dev.git
@@ -20,7 +20,7 @@ $ git clone https://github.com/vladbushuev/docker-dev.git
 В docker-compose.yml оставляем необходимые сервисы, остальное удаляем.
 В папке config/nginx необходимо выбрать версию yii basic или advanced и переименовать в  site.conf
 
-## Basic Usage
+## Использование
 
 Под linux и macOS можно использовать Makefile, пример:
 

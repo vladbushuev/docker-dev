@@ -19,7 +19,7 @@ services:
       - main_network
   php-fpm:
     build:
-      context: bin/php/${PHP_VERSION}
+      context: bin/php-fpm/${PHP_VERSION}
       args:
         uname: ${UNAME-php}
         uid: ${UID-1000}

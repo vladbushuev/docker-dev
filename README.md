@@ -1,11 +1,10 @@
-# Сборка докера для разработки
+# Сборка докера (Yii2)
 
 Включает
 
-* php 7.4.4
+* php 7.4 или 8.2
 * nginx latest
 * mariadb 10.3
-* postgres 11.2-alpine
 * mailhog
 * elasticsearch 7 или 8
 

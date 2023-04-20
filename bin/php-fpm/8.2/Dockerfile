@@ -1,18 +1,14 @@
-FROM php:7.4.4-fpm
+FROM php:8.2-fpm
 
-# Surpresses debconf complaints of trying to install apt packages interactively
-# https://github.com/moby/moby/issues/4032#issuecomment-192327844
- 
 ARG DEBIAN_FRONTEND=noninteractive
 
-# Update
+#Update
 RUN apt-get -y update --fix-missing && \
     apt-get upgrade -y && \
     apt-get --no-install-recommends install -y apt-utils && \
     rm -rf /var/lib/apt/lists/*
 
-
-# Install useful tools and install important libaries
+#Install useful tools and install important libaries
 RUN apt-get -y update && \
     apt-get -y --no-install-recommends install \
     nano \
@@ -32,7 +28,7 @@ RUN apt-get -y update && \
     libicu-dev && \
     apt-get -y --no-install-recommends install --fix-missing \
     build-essential \
-    libonig-dev && \ 
+    libonig-dev && \
     apt-get -y --no-install-recommends install --fix-missing \
     libcurl4 \
     libcurl4-openssl-dev \
@@ -47,37 +43,33 @@ RUN apt-get -y update && \
     libpng-dev && \
     rm -rf /var/lib/apt/lists/*
 
-
-# Install xdebug
-RUN pecl install xdebug && \
+#Install xdebug
+RUN pecl install xdebug-3.2.0 && \
     docker-php-ext-enable xdebug
 
-# Install redis
-RUN pecl install redis-5.1.1 && \
+#Install redis
+RUN pecl install redis-5.3.4 && \
     docker-php-ext-enable redis
 
-# Other PHP7 Extensions
-
+#Other PHP8 Extensions
 RUN docker-php-ext-install pdo_mysql && \
-    docker-php-ext-install pdo_sqlite && \
     docker-php-ext-install mysqli && \
-    docker-php-ext-install curl && \
-    docker-php-ext-install tokenizer && \
-    docker-php-ext-install json && \
-    docker-php-ext-install zip && \
-    docker-php-ext-install iconv && \
-    docker-php-ext-install -j$(nproc) intl && \
-    docker-php-ext-install mbstring && \
-    docker-php-ext-install gettext && \
-    docker-php-ext-configure gd --with-jpeg=/usr/include/ --with-freetype=/usr/include/ && \
-    docker-php-ext-install -j$(nproc) gd && \
-    docker-php-ext-configure intl && \
-    pecl install imagick-3.4.4 && \
-    pecl install mcrypt && \
-    pecl install xhprof && \
-    docker-php-ext-enable imagick mcrypt xhprof opcache
-    
-    
+    docker-php-ext-install opcache && \
+    docker-php-ext-configure zip && docker-php-ext-install zip && \
+    docker-php-ext-configure pcntl --enable-pcntl && docker-php-ext-install pcntl && \
+   cd ~ && git clone https://github.com/longxinH/xhprof.git && cd ./xhprof/extension/ && \
+    phpize && ./configure --with-php-config=/usr/local/bin/php-config && make && make install && cd ~ && rm -rf ./xhprof && \
+    cd /var/www && docker-php-ext-enable xhprof && \
+    docker-php-ext-enable xhprof && \
+    cd ~ && git clone https://github.com/Imagick/imagick && cd imagick && phpize && ./configure &&\
+    make && make install && cd ~ && rm -rf ./imagick && cd /var/www/html && \
+    docker-php-ext-enable imagick
+
+RUN apt-get update && apt-get install -y libpq-dev \
+    && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
+    && docker-php-ext-install pdo_pgsql \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN mkdir -p /var/log/php-fpm
 RUN ln -sf /dev/stdout /var/log/php-fpm/access.log
 RUN ln -sf /dev/stderr /var/log/php-fpm/error.log
@@ -100,20 +92,13 @@ RUN chown -R $uid:$gid /var/www/.composer
 RUN mkdir /tmp/xhprof \
     && chown $uid:$gid /tmp/xhprof
 
-#RUN mkdir -p /opt
-#RUN cd /opt
-#RUN wget -P /opt https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
-#RUN tar vxf /opt/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz -C /opt
-#RUN cp /opt/wkhtmltox/bin/wk* /usr/local/bin/
-#RUN rm /opt/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
-
 ENV PHP_EXTRA_CONFIGURE_ARGS --enable-fpm --with-fpm-user=$uid --with-fpm-group=$gid
 
 WORKDIR /var/www/html
 
 CMD ["php-fpm"]
 
-# Cleanup
+#Cleanup
 RUN rm -rf /usr/src/*
 
 USER $uname

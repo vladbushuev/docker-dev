@@ -19,7 +19,7 @@ services:
       - main_network
   php-fpm:
     build:
-      context: bin/php-fpm
+      context: bin/php/${PHP_VERSION}
       args:
         uname: ${UNAME-php}
         uid: ${UID-1000}
@@ -27,7 +27,7 @@ services:
     container_name: ${PROJECT_NAME}_php
     volumes:
       - ${DOCUMENT_ROOT-./www}:/var/www/html
-      - ./config/php/php.ini:/usr/local/etc/php/php.ini
+      - ./config/php/${PHP_VERSION}/php.ini:/usr/local/etc/php/php.ini
       - composer:/var/www/.composer/cache
     links: 
       - db
@@ -68,7 +68,7 @@ services:
       networks:
         - main_network
   elasticsearch:
-    build: ./bin/elasticsearch${ELASTICSEARCH_VERSION}
+    build: ./bin/elasticsearch/${ELASTICSEARCH_VERSION}
     container_name: ${PROJECT_NAME}_es
     environment:
       - discovery.type=single-node
@@ -89,8 +89,8 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - ./data/elasticsearch${ELASTICSEARCH_VERSION}:/usr/share/elasticsearch/data
-      - ./logs/elasticsearch${ELASTICSEARCH_VERSION}:/usr/share/elasticsearch/logs
+      - ./data/elasticsearch/${ELASTICSEARCH_VERSION}:/usr/share/elasticsearch/data
+      - ./logs/elasticsearch/${ELASTICSEARCH_VERSION}:/usr/share/elasticsearch/logs
     ports:
       - "9200:9200"
     networks:
